@@ -74,4 +74,27 @@ public class WireMockSampleTest {
         Response response = client.newCall(request).execute();
         assertEquals("Welcome TestUser!", response.body().string());
     }
+
+    private void configStubForGetMethod() {
+        configureFor("localhost", 9090);
+        stubFor(get(urlEqualTo("/api/v1/account/1"))
+                .willReturn(status(200)
+                        .withBody("{\"id\":1,\"name\":\"sharath\",\"location\":\"Hyderabad\"}")
+                        .withHeader("content-type", "application/json")));
+    }
+
+    @Test
+    public void testWiremockGetBody()throws IOException {
+        configStubForGetMethod();
+
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+        Request request = new Request.Builder()
+                .url("http://localhost:9090/api/v1/account/1")
+                .method("GET", null)
+                .build();
+        Response response = client.newCall(request).execute();
+        assertEquals("{\"id\":1,\"name\":\"sharath\",\"location\":\"Hyderabad\"}", response.body().string());
+    }
+
 }
